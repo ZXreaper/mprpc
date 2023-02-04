@@ -1,2 +1,7 @@
+.vscode
 build/*
 !build/Makefile
+test/protobuf/*
+!test/protobuf/*.cc
+!test/protobuf/*.h
+!test/protobuf/*.proto
