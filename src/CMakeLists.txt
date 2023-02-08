@@ -1,3 +1,2 @@
-set(SRC_LIST mprpcapplication.cc rpcprovider.cc)
-
-add_executable(mprpc ${SRC_LIST})
+aux_source_directory(. SRC_LIST)
+add_library(mprpc SHARED ${SRC_LIST})
