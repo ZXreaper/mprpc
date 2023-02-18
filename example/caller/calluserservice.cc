@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     request.set_name("zhang san");
     request.set_pwd("123456");
     // rpc方法的响应
-    fixbug::LoginRequest response;
+    fixbug::LoginResponse response;
     // 发起rpc方法的调用   同步的rpc调用过程  MprpcChannel::callmethod
     stub.Login(nullptr, &request, &response, nullptr); // RpcChannel->RpcChannel::callMethod 集中来做所有rpc方法调用的参数序列化和网络发送
 

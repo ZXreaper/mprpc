@@ -114,7 +114,7 @@ void RpcProvider::OnMessage(const muduo::net::TcpConnectionPtr &conn,
     }
 
     // 获取rpc方法参数的字符流数据
-    std::string args_str = rpc_header_str.substr(4 + header_size, args_size);
+    std::string args_str = recv_buf.substr(4 + header_size, args_size);
 
     // 打印调试信息
     std::cout << "===================================================" << std::endl;
