@@ -28,5 +28,23 @@ int main(int argc, char **argv)
     {
         std::cout << "rpc login response error : " << response.result().errmsg() << std::endl;
     }
+
+    fixbug::RegisterRequest req;
+    req.set_name("hehe girl");
+    req.set_pwd("666666");
+
+    fixbug::RegisterResponse res;
+
+    stub.Register(nullptr, &req, &res, nullptr);
+
+    if (res.result().errcode() == 0)
+    {
+        std::cout << "rpc register response success : " << res.success() << std::endl;
+    }
+    else
+    {
+        std::cout << "rpc register response error : " << res.result().errmsg() << std::endl;
+    }
+
     return 0;
 }

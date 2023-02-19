@@ -22,8 +22,21 @@ message LoginResponse
     bool success = 2;
 }
 
+message RegisterRequest
+{
+    bytes name = 1;
+    bytes pwd = 2;
+}
+
+message RegisterResponse
+{
+    ResultCode result = 1;
+    bool success = 2;
+}
+
 service UserServiceRpc
 {
     // 和本地的方法名字相不相同无所谓
     rpc Login(LoginRequest) returns(LoginResponse);
+    rpc Register(RegisterRequest) returns(RegisterResponse);
 }
