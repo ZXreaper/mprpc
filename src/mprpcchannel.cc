@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include "mprpccontroller.h"
+#include "zookeeperutil.h"
 
 /*
 约定好的发送给rpc服务端的参数格式 ：header_size + (service_name method_name args_size) + args
@@ -82,8 +83,28 @@ void MprpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
         return;
     }
 
-    std::string ip = MprpcApplication::GetInstance().GetConfig().Load("rpcserverip");
-    uint16_t port = atoi(MprpcApplication::GetInstance().GetConfig().Load("rpcserverport").c_str());
+    // 读取配置文件rpcserver的信息
+    // std::string ip = MprpcApplication::GetInstance().GetConfig().Load("rpcserverip");
+    // uint16_t port = atoi(MprpcApplication::GetInstance().GetConfig().Load("rpcserverport").c_str());
+
+    // rpc调用方想调用service_name的method_name服务，需要查询zk上该服务所在的host信息
+    ZkClient zkCli;
+    zkCli.Start();
+    std::string method_path = "/" + service_name + "/" + method_name;
+    std::string host_data = zkCli.GetData(method_path.c_str());
+    if (host_data == "")
+    {
+        controller->SetFailed(method_path + " is not exit!");
+        return;
+    }
+    int idx = host_data.find(":");
+    if (idx == -1)
+    {
+        controller->SetFailed(method_path + " address is invalid!");
+        return;
+    }
+    std::string ip = host_data.substr(0, idx);
+    uint16_t port = atoi(host_data.substr(idx + 1, host_data.size() - idx).c_str());
 
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
@@ -128,7 +149,7 @@ void MprpcChannel::CallMethod(const google::protobuf::MethodDescriptor *method,
     if (!response->ParseFromArray(recv_buf, recv_size)) // ParseFromString存在问题，直接使用ParseFromArray来解析参数
     {
         char errtxt[512] = {0};
-        sprintf(errtxt, "parse error! errno : %s", recv_buf);
+        sprintf(errtxt, "parse error! errno : %d", errno);
         controller->SetFailed(errtxt);
         close(clientfd);
         return;
